@@ -21,7 +21,7 @@
     }
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.3",
+    "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^20.5.3",
     "@svgr/webpack": "^8.1.0",
     "@types/node": "^20",
