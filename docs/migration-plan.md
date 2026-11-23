@@ -1,0 +1,127 @@
+# FI-FE-PC 마이그레이션 계획
+
+FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세팅하기 위한 단계별 계획이다. 각 단계를 진행하면서 체크리스트를 갱신한다.
+
+## 전제
+
+- 브랜치 전략은 FI-FE와 동일하다. `develop`(개발 통합) → `release`(QA, 배포 준비) → `main`(운영).
+- 다국어(ko/en)를 FI-FE와 동일하게 지원한다.
+- FI-FE와의 공통 코드 공유 방식(공통 패키지 분리 여부)은 보류하고, 우선 필요한 만큼 복사한다.
+- GitHub App(finditem-bot) 연결은 나중에 처리한다.
+- 0단계를 제외한 모든 단계는 `develop`에서 분기한 브랜치 하나와 PR 하나로 진행하고 `develop`으로 머지한다.
+- `CLAUDE.md`는 3단계에서 규칙 부분만 먼저 넣고, 스택과 구조, 코드 컨벤션 부분은 해당 코드가 들어오는 단계에서 함께 채운다. 아직 없는 코드를 가리키는 규칙이 섞이지 않게 하기 위함이다.
+
+## 0단계. 저장소 기본 세팅 (GitHub 작업)
+
+- [x] `main`에서 `develop`, `release` 브랜치를 생성하고 push한다.
+- [x] 기본 브랜치를 `develop`으로 변경한다.
+- [x] FI-FE 라벨을 복사한다. (`gh label clone finditem/FI-FE -R finditem/FI-FE-PC`)
+- [x] FI-FE와 동일하게 머지 후 브랜치 자동 삭제(`delete_branch_on_merge`)를 켠다. 이전 단계 브랜치 위에 쌓은 PR은 이전 PR이 머지되어 브랜치가 삭제될 때 base가 `develop`으로 자동 변경된다.
+- [ ] 브랜치 보호 규칙을 설정한다. 초기 세팅 중에는 PR이 잦으므로 4단계 이후에 설정한다.
+
+## 1단계. Next.js 프로젝트 초기화 (`chore/init-nextjs`)
+
+- [ ] FI-FE와 동일한 버전(Next 15, React 19, TypeScript 5, Tailwind 3.4)으로 프로젝트를 구성한다.
+- [ ] `tsconfig.json`(`@/*` 경로 별칭), `postcss.config.mjs`, `.gitignore`를 가져온다. `.gitignore`는 `node_modules`가 생기는 시점부터 필요하므로 이 단계에서 가져온다.
+- [ ] `next.config.ts`의 기본 골격(reactCompiler, svgr, 보안 헤더, images)을 가져온다.
+- [ ] `npm run dev`, `npm run build`가 성공하는지 확인한다.
+
+## 2단계. 커밋 규칙 도구 (`chore/commit-convention`)
+
+1단계 직후에 진행한다. 이후 커밋부터 규칙이 자동으로 검사된다.
+
+- [ ] husky, commitlint, lint-staged, prettier, prettier-plugin-tailwindcss를 설치한다.
+- [ ] `commitlint.config.cjs`, `prettier.config.cjs`, `.husky/commit-msg`, `.husky/pre-commit`을 가져온다.
+- [ ] `package.json`에 `lint-staged` 설정을 추가한다.
+- [ ] `.vscode/settings.json`을 가져온다.
+- [ ] 규칙에 맞지 않는 커밋(예: `git commit -m "test"`)이 거절되는지 확인한다.
+
+## 3단계. 협업 규칙 (`chore/github-templates`)
+
+마이그레이션 PR이 계속 올라가므로 PR 형식과 작업 규칙을 초기에 갖춘다.
+
+- [ ] `.github/pull_request_template.md`를 가져온다.
+- [ ] `.github/ISSUE_TEMPLATE/`(bug_report, refactor, task)를 가져온다.
+- [ ] `.github/dependabot.yml`을 가져온다.
+- [ ] `.claude/skills/create-pr`를 가져온다. PR 템플릿에 의존하므로 같은 PR에 넣는다.
+- [ ] `CLAUDE.md`의 규칙 부분(커밋 컨벤션, 브랜치 전략, 텍스트 작성 원칙, 표준 작업 흐름, PR 생성, PR 리뷰 반영)을 가져온다.
+- [ ] (선택) `.claude/hooks/check-claude-local.sh`를 가져온다. 각자 `settings.local.json`에 등록해야 동작하므로 다른 팀원에게 영향이 없다.
+
+## 4단계. GitHub 자동화 워크플로 (`chore/github-workflows`)
+
+- [ ] `.github/auto_assign.yml`, `.github/drafter-config.yml`을 가져온다.
+- [ ] 워크플로 `auto-assign`, `auto-label`, `auto-assign-issue`, `re-request-review`, `drafter`, `release-promotion`, `hotfix-sync`를 가져온다.
+- [ ] GitHub App 연결 후 머지한다. 연결 전에 머지하면 모든 PR에서 워크플로가 실패한다.
+- [ ] 0단계에서 미룬 브랜치 보호 규칙을 설정한다.
+
+## 5단계. 디자인 기반 (`chore/design-foundation`)
+
+- [ ] `src/utils/tokens/`, `src/utils/customStylePlugins/`, `src/utils/customFonts/`를 가져온다.
+- [ ] `tailwind.config.ts`, `src/app/globals.css`, 폰트를 가져온다.
+- [ ] `scripts/generate-icon-sprite.js`, 아이콘 원본, `predev`/`prebuild` 스크립트를 가져온다.
+- [ ] 토큰 클래스와 커스텀 유틸리티가 빌드에 반영되는지 확인한다.
+- [ ] `CLAUDE.md`에 스택, 코드 컨벤션(상수 분리, TSDoc, TODO 주석), React Compiler 섹션을 추가하고 `docs/tsdoc-guide.md`를 가져온다.
+
+## 6단계. 다국어 (`chore/i18n`)
+
+- [ ] next-intl을 설치한다.
+- [ ] `src/i18n/`, `src/messages/{ko,en}.json`(골격), `src/middleware.ts`, `src/app/[locale]/` 라우트 구조를 가져온다.
+- [ ] `eslint.config.mjs`, `eslint-rules/no-korean-literal.js`, `scripts/check-i18n-keys.js`와 관련 npm 스크립트를 가져온다.
+- [ ] `/`, `/en` 접속과 `npm run check:i18n-keys` 통과를 확인한다.
+- [ ] `.claude/skills/plan-route`를 가져온다. 라우트 경로가 FI-FE 스킬 문서(`src/app/(home)/`)와 실제 구조(`src/app/[locale]/(home)/`)가 다르므로 PC의 실제 구조에 맞게 수정한다.
+- [ ] `CLAUDE.md`에 구조, 라우트 작업 계획 섹션을 추가한다.
+
+## 7단계. 데이터와 상태 레이어 (`chore/data-layer`)
+
+- [ ] axios, @tanstack/react-query, zustand, cookies-next, zod, react-hook-form 등을 설치한다.
+- [ ] `src/api/_base/`, `src/providers/`, 필요한 `src/store`, `src/types`를 가져온다.
+- [ ] `.env.example`을 가져온다. `.env.local`의 실제 값은 팀에게 받는다.
+- [ ] API 하나를 `useAppQuery`로 호출해 동작을 확인한다.
+- [ ] `CLAUDE.md`에 데이터 패칭 섹션을 추가하고 `docs/data-fetching-guide.md`를 가져온다.
+
+## 8단계. 모니터링과 분석 (`chore/monitoring`)
+
+- [ ] Sentry 프로젝트를 FI-FE와 공유할지, PC용으로 새로 만들지 결정한다.
+- [ ] `sentry.*.config.ts`, `src/instrumentation*.ts`, `next.config.ts`의 `withSentryConfig`를 가져온다.
+- [ ] Vercel Analytics, Speed Insights, GA, Clarity를 설정한다.
+
+## 9단계. 테스트 환경 (`test/setup`)
+
+팀 규칙에 따라 테스트 관련 작업은 `test/*` 브랜치로 분리한다.
+
+- [ ] Jest: `jest.config.js`, `jest.setup.ts`와 관련 패키지를 가져온다.
+- [ ] MSW: `src/mock/`(handlers, `data/index.ts` 골격), `public/mockServiceWorker.js`를 가져온다.
+- [ ] Playwright: `playwright.config.ts`, `tests/e2e/`를 가져온다.
+- [ ] Storybook: `.storybook/`을 가져온다.
+- [ ] 샘플 테스트로 `npm run test`, `npm run test:e2e`, `npm run storybook`이 동작하는지 확인한다.
+- [ ] `AGENTS.md`(mock 데이터 규칙)를 가져오고 `CLAUDE.md`에 검증 커맨드 섹션을 추가한다.
+
+## 10단계. CI와 보안 스캔 (`chore/ci`)
+
+- [ ] 워크플로 `jest`, `playwright`, `chromatic`, `trufflehog`, `osv-scanner`를 가져온다.
+- [ ] secret `NEXT_PUBLIC_API_URL`, `CHROMATIC_PROJECT_TOKEN`(PC용 Chromatic 프로젝트), `SENTRY_AUTH_TOKEN`을 등록한다.
+
+## 11단계. 배포 흐름 검증
+
+- [ ] Vercel에 PC 프로젝트를 연결하고 환경 변수를 등록한다.
+- [ ] `develop` 머지 → release PR 자동 생성 → `release` 머지 → `main` 머지 → 릴리즈 초안 생성까지 전체 흐름을 한 번 실행해 확인한다.
+
+## 기능 이전 시 함께 가져올 항목
+
+- 지도 기능: `.claude/skills/naver-map`, `docs/naver-map/`, `CLAUDE.md`의 지도 작업 섹션. 스킬은 문서에 의존하므로 반드시 함께 가져온다.
+
+## 가져오지 않는 항목
+
+- 모바일 앱 전용: `capacitor.config.ts`, `ios/`, `@capacitor/*` 패키지
+- 빌드와 로컬 산출물: `.next/`, `node_modules/`, `coverage/`, `reports/`, `tsconfig.tsbuildinfo`, `.env.local`
+- 개인 도구 설정: `.agents/`, `.codex/`, `.claude/settings.local.json`
+- 확인 후 결정: `emails/`
+
+## 외부 의존 항목
+
+| 항목 | 영향받는 단계 |
+| --- | --- |
+| finditem-bot App에 FI-FE-PC 추가, `APP_ID`와 `APP_PRIVATE_KEY` 등록 | 4단계 머지 |
+| `.env.local` 실제 값 | 7단계 |
+| Sentry, Chromatic 프로젝트 결정과 토큰 | 8단계, 10단계 |
+| Vercel 프로젝트 연결 | 11단계 |
