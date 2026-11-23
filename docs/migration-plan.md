@@ -16,6 +16,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - [x] `main`에서 `develop`, `release` 브랜치를 생성하고 push한다.
 - [x] 기본 브랜치를 `develop`으로 변경한다.
 - [x] FI-FE 라벨을 복사한다. (`gh label clone finditem/FI-FE -R finditem/FI-FE-PC`)
+- [x] FI-FE와 동일하게 머지 후 브랜치 자동 삭제(`delete_branch_on_merge`)를 켠다. 이전 단계 브랜치 위에 쌓은 PR은 이전 PR이 머지되어 브랜치가 삭제될 때 base가 `develop`으로 자동 변경된다.
 - [ ] 브랜치 보호 규칙을 설정한다. 초기 세팅 중에는 PR이 잦으므로 4단계 이후에 설정한다.
 
 ## 1단계. Next.js 프로젝트 초기화 (`chore/init-nextjs`)
