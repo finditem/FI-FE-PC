@@ -7,7 +7,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - 브랜치 전략은 FI-FE와 동일하다. `develop`(개발 통합) → `release`(QA, 배포 준비) → `main`(운영).
 - 다국어(ko/en)를 FI-FE와 동일하게 지원한다.
 - FI-FE와의 공통 코드 공유 방식(공통 패키지 분리 여부)은 보류하고, 우선 필요한 만큼 복사한다.
-- GitHub App(finditem-bot) 연결은 나중에 처리한다.
+- 워크플로용 GitHub App은 FI-FE의 finditem-bot을 쓰지 않고 PC 전용 App(`finditem-pc-bot`)을 새로 만든다. 생성과 연결은 나중에 처리한다.
 - 0단계를 제외한 모든 단계는 `develop`에서 분기한 브랜치 하나와 PR 하나로 진행하고 `develop`으로 머지한다.
 - `CLAUDE.md`는 3단계에서 규칙 부분만 먼저 넣고, 스택과 구조, 코드 컨벤션 부분은 해당 코드가 들어오는 단계에서 함께 채운다. 아직 없는 코드를 가리키는 규칙이 섞이지 않게 하기 위함이다.
 
@@ -51,7 +51,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 
 - [ ] `.github/auto_assign.yml`, `.github/drafter-config.yml`을 가져온다.
 - [ ] 워크플로 `auto-assign`, `auto-label`, `auto-assign-issue`, `re-request-review`, `drafter`, `release-promotion`, `hotfix-sync`를 가져온다.
-- [ ] GitHub App 연결 후 머지한다. 연결 전에 머지하면 모든 PR에서 워크플로가 실패한다.
+- [ ] `finditem-pc-bot` 연결 후 머지한다. 연결 전에 머지하면 모든 PR에서 워크플로가 실패한다. 워크플로는 `vars.APP_ID`와 `secrets.APP_PRIVATE_KEY`만 읽으므로 FI-FE 파일을 수정 없이 그대로 쓴다.
 
 ## 5단계. 디자인 기반 (`chore/design-foundation`)
 
@@ -119,9 +119,9 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 
 ## 외부 의존 항목
 
-| 항목                                                                | 영향받는 단계 |
-| ------------------------------------------------------------------- | ------------- |
-| finditem-bot App에 FI-FE-PC 추가, `APP_ID`와 `APP_PRIVATE_KEY` 등록 | 4단계 머지    |
-| `.env.local` 실제 값                                                | 7단계         |
-| Sentry, Chromatic 프로젝트 결정과 토큰                              | 8단계, 10단계 |
-| Vercel 프로젝트 연결                                                | 11단계        |
+| 항목                                                                                                                                       | 영향받는 단계 |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
+| `finditem-pc-bot` App 생성(Contents, Pull requests, Issues 쓰기 권한, Webhook 비활성화)과 FI-FE-PC 설치, `APP_ID`와 `APP_PRIVATE_KEY` 등록 | 4단계 머지    |
+| `.env.local` 실제 값                                                                                                                       | 7단계         |
+| Sentry, Chromatic 프로젝트 결정과 토큰                                                                                                     | 8단계, 10단계 |
+| Vercel 프로젝트 연결                                                                                                                       | 11단계        |
