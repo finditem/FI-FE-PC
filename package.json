@@ -9,11 +9,14 @@
     "prebuild": "npm run generate:icon-sprite",
     "build": "next build",
     "start": "next start",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint:i18n-literal": "eslint \"src/**/*.{ts,tsx}\"",
+    "check:i18n-keys": "node scripts/check-i18n-keys.js"
   },
   "dependencies": {
     "babel-plugin-react-compiler": "^1.0.0",
     "next": "^15.5.28",
+    "next-intl": "^4.15.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
@@ -30,7 +33,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/parser": "^8.72.2",
     "autoprefixer": "^10.6.1",
+    "eslint": "^10.15.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "postcss": "^8.5.31",
