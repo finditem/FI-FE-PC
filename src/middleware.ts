@@ -5,7 +5,7 @@ import { routing } from "@/i18n/routing";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-// TODO(수현): 7단계에서 FI-FE의 보호 라우트 접근 제어와 /admin 리다이렉트를 handleRequest에 옮긴다.
+// TODO(수현): 데이터 레이어를 가져올 때 FI-FE의 보호 라우트 접근 제어와 /admin 리다이렉트를 handleRequest에 옮긴다.
 function handleRequest(request: NextRequest) {
   return intlMiddleware(request);
 }
