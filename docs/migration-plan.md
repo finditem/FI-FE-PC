@@ -6,6 +6,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 
 - 브랜치 전략은 FI-FE와 동일하다. `develop`(개발 통합) → `release`(QA, 배포 준비) → `main`(운영).
 - 다국어(ko/en)를 FI-FE와 동일하게 지원한다.
+- FI-FE 파일은 로컬 작업 트리가 아니라 `git fetch` 후 `origin/develop` 기준으로 가져온다.
 - FI-FE와의 공통 코드 공유 방식(공통 패키지 분리 여부)은 보류하고, 우선 필요한 만큼 복사한다.
 - 워크플로용 GitHub App은 FI-FE의 finditem-bot을 쓰지 않고 PC 전용 App(`finditem-pc-bot`)을 새로 만든다. 생성과 연결은 나중에 처리한다.
 - 0단계를 제외한 모든 단계는 `develop`에서 분기한 브랜치 하나와 PR 하나로 진행하고 `develop`으로 머지한다.
@@ -17,7 +18,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - [x] 기본 브랜치를 `develop`으로 변경한다.
 - [x] FI-FE 라벨을 복사한다. (`gh label clone finditem/FI-FE -R finditem/FI-FE-PC`)
 - [x] FI-FE와 동일하게 머지 후 브랜치 자동 삭제(`delete_branch_on_merge`)를 켠다. 이전 단계 브랜치 위에 쌓은 PR은 이전 PR이 머지되어 브랜치가 삭제될 때 base가 `develop`으로 자동 변경된다.
-- [x] FI-FE의 Ruleset(`develop`, `release`, `main`, `hotfix/*`)을 그대로 옮겨 브랜치 보호 규칙을 설정한다. 세 상시 브랜치는 merge 방식만 허용하고, `develop`은 승인 1명이 필요하다. FI-FE의 `Vercel` 필수 상태 검사는 Vercel 연결 전에는 모든 PR의 머지를 막으므로 제외하고 11단계에서 추가한다.
+- [x] FI-FE의 Ruleset(`develop`, `release`, `main`, `hotfix/*`)을 그대로 옮겨 브랜치 보호 규칙을 설정한다. 세 상시 브랜치는 merge 방식만 허용하고, `develop`은 승인 1명이 필요하다. FI-FE의 `Vercel` 필수 상태 검사는 Vercel 연결 전에는 모든 PR의 머지를 막으므로 제외하고 9단계에서 추가한다.
 
 ## 1단계. Next.js 프로젝트 초기화 (`chore/init-nextjs`)
 
@@ -67,24 +68,10 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - [ ] `src/i18n/`, `src/messages/{ko,en}.json`(골격), `src/middleware.ts`, `src/app/[locale]/` 라우트 구조를 가져온다.
 - [ ] `eslint.config.mjs`, `eslint-rules/no-korean-literal.js`, `scripts/check-i18n-keys.js`와 관련 npm 스크립트를 가져온다.
 - [ ] `/`, `/en` 접속과 `npm run check:i18n-keys` 통과를 확인한다.
-- [ ] `.claude/skills/plan-route`를 가져온다. 라우트 경로가 FI-FE 스킬 문서(`src/app/(home)/`)와 실제 구조(`src/app/[locale]/(home)/`)가 다르므로 PC의 실제 구조에 맞게 수정한다.
+- [ ] `.claude/skills/plan-route`를 가져온다.
 - [ ] `CLAUDE.md`에 구조, 라우트 작업 계획 섹션을 추가한다.
 
-## 7단계. 데이터와 상태 레이어 (`chore/data-layer`)
-
-- [ ] axios, @tanstack/react-query, zustand, cookies-next, zod, react-hook-form 등을 설치한다.
-- [ ] `src/api/_base/`, `src/providers/`, 필요한 `src/store`, `src/types`를 가져온다.
-- [ ] `.env.example`을 가져온다. `.env.local`의 실제 값은 팀에게 받는다.
-- [ ] API 하나를 `useAppQuery`로 호출해 동작을 확인한다.
-- [ ] `CLAUDE.md`에 데이터 패칭 섹션을 추가하고 `docs/data-fetching-guide.md`를 가져온다.
-
-## 8단계. 모니터링과 분석 (`chore/monitoring`)
-
-- [ ] Sentry 프로젝트를 FI-FE와 공유할지, PC용으로 새로 만들지 결정한다.
-- [ ] `sentry.*.config.ts`, `src/instrumentation*.ts`, `next.config.ts`의 `withSentryConfig`를 가져온다.
-- [ ] Vercel Analytics, Speed Insights, GA, Clarity를 설정한다.
-
-## 9단계. 테스트 환경 (`test/setup`)
+## 7단계. 테스트 환경 (`test/setup`)
 
 팀 규칙에 따라 테스트 관련 작업은 `test/*` 브랜치로 분리한다.
 
@@ -92,19 +79,41 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - [ ] MSW: `src/mock/`(handlers, `data/index.ts` 골격), `public/mockServiceWorker.js`를 가져온다.
 - [ ] Playwright: `playwright.config.ts`, `tests/e2e/`를 가져온다.
 - [ ] Storybook: `.storybook/`을 가져온다.
+- [ ] 5단계에서 제외한 `Icon`의 테스트와 스토리를 가져온다.
 - [ ] 샘플 테스트로 `npm run test`, `npm run test:e2e`, `npm run storybook`이 동작하는지 확인한다.
 - [ ] `AGENTS.md`(mock 데이터 규칙)를 가져오고 `CLAUDE.md`에 검증 커맨드 섹션을 추가한다.
 
-## 10단계. CI와 보안 스캔 (`chore/ci`)
+## 8단계. CI와 보안 스캔 (`chore/ci`)
 
 - [ ] 워크플로 `jest`, `playwright`, `chromatic`, `trufflehog`, `osv-scanner`를 가져온다.
-- [ ] secret `NEXT_PUBLIC_API_URL`, `CHROMATIC_PROJECT_TOKEN`(PC용 Chromatic 프로젝트), `SENTRY_AUTH_TOKEN`을 등록한다.
+- [ ] secret `NEXT_PUBLIC_API_URL`, `CHROMATIC_PROJECT_TOKEN`(PC용 Chromatic 프로젝트)을 등록한다.
 
-## 11단계. 배포 흐름 검증
+## 9단계. 배포 흐름 검증
 
 - [ ] Vercel에 PC 프로젝트를 연결하고 환경 변수를 등록한다.
 - [ ] FI-FE와 동일하게 `develop`(최신 base 기준 검사), `release` Ruleset에 `Vercel` 필수 상태 검사를 추가한다.
 - [ ] `develop` 머지 → release PR 자동 생성 → `release` 머지 → `main` 머지 → 릴리즈 초안 생성까지 전체 흐름을 한 번 실행해 확인한다.
+
+## 기능 작업과 함께 진행할 단계
+
+아래 두 단계는 기능 코드가 없으면 동작을 확인할 수 없으므로 번호 단계에서 분리하고, 첫 기능 작업을 시작할 때 별도 PR로 먼저 진행한다.
+
+### 데이터와 상태 레이어 (`chore/data-layer`)
+
+- [ ] axios, @tanstack/react-query, zustand, cookies-next, zod, react-hook-form 등을 설치한다.
+- [ ] `src/api/_base/`, `src/providers/`, 필요한 `src/store`, `src/types`를 가져온다.
+- [ ] `src/middleware.ts`에 FI-FE의 보호 라우트 접근 제어와 `/admin` 리다이렉트를 옮긴다.
+- [ ] `.env.example`을 가져온다. `.env.local`의 실제 값은 팀에게 받는다.
+- [ ] 첫 기능에서 쓰는 API를 `useAppQuery`로 호출해 동작을 확인한다.
+- [ ] `CLAUDE.md`에 데이터 패칭 섹션을 추가하고 `docs/data-fetching-guide.md`를 가져온다.
+
+### 모니터링과 분석 (`chore/monitoring`)
+
+배포해 실제 트래픽을 받기 직전에 진행한다.
+
+- [ ] Sentry 프로젝트를 FI-FE와 공유할지, PC용으로 새로 만들지 결정한다.
+- [ ] `sentry.*.config.ts`, `src/instrumentation*.ts`, `next.config.ts`의 `withSentryConfig`를 가져오고 secret `SENTRY_AUTH_TOKEN`을 등록한다.
+- [ ] Vercel Analytics, Speed Insights, GA, Clarity를 설정한다.
 
 ## 기능 이전 시 함께 가져올 항목
 
@@ -119,9 +128,9 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 
 ## 외부 의존 항목
 
-| 항목                                                                                                                                       | 영향받는 단계 |
-| ------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |
-| `finditem-pc-bot` App 생성(Contents, Pull requests, Issues 쓰기 권한, Webhook 비활성화)과 FI-FE-PC 설치, `APP_ID`와 `APP_PRIVATE_KEY` 등록 | 4단계 머지    |
-| `.env.local` 실제 값                                                                                                                       | 7단계         |
-| Sentry, Chromatic 프로젝트 결정과 토큰                                                                                                     | 8단계, 10단계 |
-| Vercel 프로젝트 연결                                                                                                                       | 11단계        |
+| 항목                                                                                                                                       | 영향받는 단계          |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| `finditem-pc-bot` App 생성(Contents, Pull requests, Issues 쓰기 권한, Webhook 비활성화)과 FI-FE-PC 설치, `APP_ID`와 `APP_PRIVATE_KEY` 등록 | 4단계 머지             |
+| `.env.local` 실제 값                                                                                                                       | 데이터와 상태 레이어   |
+| Sentry, Chromatic 프로젝트 결정과 토큰                                                                                                     | 8단계, 모니터링과 분석 |
+| Vercel 프로젝트 연결                                                                                                                       | 9단계                  |
