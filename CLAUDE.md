@@ -4,6 +4,12 @@
 
 현재 FI-FE의 환경을 단계별로 옮기는 중이며 진행 상황은 [`docs/migration-plan.md`](docs/migration-plan.md)에 있다. 이 문서에는 지금 리포에 실제로 적용된 규칙만 적고, 스택·구조·코드 컨벤션 섹션은 해당 코드가 들어오는 단계에서 추가한다.
 
+## 스택
+
+- Next.js 15 / React 19 / TypeScript 5 (`next.config.ts`에서 `reactCompiler: true` — React Compiler 활성화)
+- Tailwind CSS 3. 디자인 토큰은 `src/utils/tokens/`, 커스텀 유틸리티 플러그인은 `src/utils/customStylePlugins/`, 타이포그래피는 `src/utils/customFonts/`에 있고 `tailwind.config.ts`가 이를 조합한다.
+- 아이콘: `src/components/common/Icon`. 자주 쓰는 아이콘은 `icon-manifest.json`에 등록해 `public/icons/sprite.svg` 스프라이트로 묶는다. 스프라이트는 `predev`/`prebuild`에서 `scripts/generate-icon-sprite.js`가 다시 생성하므로, 아이콘을 추가하면 생성된 스프라이트도 함께 커밋한다.
+
 ## 커밋 컨벤션 (commitlint 강제)
 
 - type: `feat`, `fix`, `docs`, `hotfix`, `refactor`, `test`, `chore`, `rename`, `asset`, `design`, `a11y` 중 하나
@@ -22,6 +28,21 @@ Git Flow 변형. 상시 브랜치 3개와 작업별 임시 브랜치로 나눈�
 ## 텍스트 작성 원칙
 
 커밋 메시지, PR 본문, 코드 주석 등 Claude가 작성하는 모든 텍스트 산출물은 온전한 문장으로만 작성하고 이모티콘을 사용하지 않는다.
+
+## React Compiler와 메모이제이션
+
+이 프로젝트는 React Compiler가 켜져 있다(`next.config.ts`의 `reactCompiler: true`). 컴포넌트/훅 내부에서 `useMemo`, `useCallback`을 수동으로 작성하지 않는다 — 컴파일러가 자동으로 처리한다. 새 훅이나 컴포넌트를 작성할 때도, 기존 코드를 참고해 복사할 때도 이 패턴을 넣지 않는다. 외부 라이브러리 API가 메모이즈된 함수/값을 명시적으로 요구하는 경우처럼 컴파일러가 커버하지 못하는 예외적 상황에서만 사용하고, 그 경우 왜 필요한지 주석으로 남긴다.
+
+## 코드 컨벤션
+
+- 상수 분리: 여러 곳에서 참조하도록 export하는 대문자 상수는 컴포넌트·훅 안에 인라인하지 않고 별도 상수 파일 또는 타입 파일로 분리한다.
+- 주석(TSDoc): 태그 사용법과 컴포넌트/훅/유틸 유형별 템플릿은 [`docs/tsdoc-guide.md`](docs/tsdoc-guide.md)에 있다. 새 컴포넌트·훅·유틸·타입을 작성할 때 참고하고, 아래 핵심 규칙은 항상 지킨다.
+  - 타입으로 알 수 있는 정보(string, number 등)는 주석에 중복해 적지 않는다.
+  - "무엇을 하는지"를 넘어 "어떻게 쓰는지"와 "주의할 점"에 집중한다.
+  - 3단 구조로 쓴다: `[요약/상세]` → `[인터페이스/파라미터]` → `[예시]`. props(또는 매개변수)가 없으면 `[요약/상세]` → `[예시]` 2단으로 줄인다.
+  - JSDoc 스타일(`@param {string} name`처럼 중괄호로 타입을 명시)을 쓰지 않는다. 태그 표기에 주의한다 — `@remark`(X) → `@remarks`(O), `@return`(X) → `@returns`(O).
+  - 매개변수가 1~2개면 함수 매개변수에 직접 정의하고 `@param`으로 설명한다. 매개변수가 많거나 객체 구조면 `interface`로 분리한다 — 인터페이스 필드 주석이 IDE 인텔리센스와 연동되어 정의부로 이동하지 않고도 필드 역할을 바로 확인할 수 있기 때문이다. default 값이 있으면 함께 적는다.
+- TODO 주석: 나중에 처리할 작업을 남길 때는 `TODO(담당자): 할 일` 형태로 담당자 이름을 괄호 안에 명시한다. 담당자를 적어 누구에게 물어보면 되는지 추적할 수 있게 하기 위함이다. 예: `// TODO(수현): 후기 등록 API 연동 시 성공 응답 후 완료 팝업을 열도록 교체`.
 
 ## 표준 작업 흐름
 

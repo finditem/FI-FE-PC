@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate:icon-sprite": "node scripts/generate-icon-sprite.js",
+    "predev": "npm run generate:icon-sprite",
     "dev": "next dev",
+    "prebuild": "npm run generate:icon-sprite",
     "build": "next build",
     "start": "next start",
     "prepare": "husky"
