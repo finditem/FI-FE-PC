@@ -1,0 +1,40 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+commitish: main
+
+categories:
+  - title: "## 추가된 기능"
+    labels:
+      - "✨ feature"
+      - "🖌️ UI/UX"
+      - "🎨 design"
+  - title: "## 수정된 사항"
+    labels:
+      - "🐞 bug"
+      - "🚨 hotfix"
+  - title: "## 기타 개선 사항"
+    labels:
+      - "⚡️ performance"
+      - "🔧 refactor"
+      - "♿ a11y"
+      - "🧹 chore"
+
+version-resolver:
+  major:
+    labels: ["🔺 major"]
+  minor:
+    labels: ["✨ feature", "🖌️ UI/UX", "🎨 design"]
+  patch:
+    labels: ["🐞 bug", "🚨 hotfix", "⚡️ performance", "🔧 refactor", "♿ a11y", "🧹 chore"]
+  default: patch
+
+template: |
+  <p align="center">
+    <a href="https://www.finditem.kr/">
+      <img src="https://fmi-project-s3-bucket.s3.ap-northeast-2.amazonaws.com/9e619169-f_default-share.png" width="100%" alt="Find My Item Banner" style="border-radius: 12px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);" />
+    </a>
+  </p>
+
+  ## 변경사항
+
+  $CHANGES
