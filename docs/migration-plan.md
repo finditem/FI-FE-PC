@@ -91,6 +91,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 ## 9단계. 배포 흐름 검증
 
 - [ ] Vercel에 PC 프로젝트를 연결하고 환경 변수를 등록한다.
+- [ ] PC 운영 도메인을 정하고 FI-FE처럼 `src/constants/PRODUCTION_HOST.ts`, 운영 외 호스트의 `X-Robots-Tag: noindex` 헤더(`next.config.ts`), `src/app/robots.ts`를 가져온다.
 - [ ] FI-FE와 동일하게 `develop`(최신 base 기준 검사), `release` Ruleset에 `Vercel` 필수 상태 검사를 추가한다.
 - [ ] `develop` 머지 → release PR 자동 생성 → `release` 머지 → `main` 머지 → 릴리즈 초안 생성까지 전체 흐름을 한 번 실행해 확인한다.
 
@@ -103,6 +104,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - [ ] axios, @tanstack/react-query, zustand, cookies-next, zod, react-hook-form 등을 설치한다.
 - [ ] `src/api/_base/`, `src/providers/`, 필요한 `src/store`, `src/types`를 가져온다.
 - [ ] `src/middleware.ts`에 FI-FE의 보호 라우트 접근 제어와 `/admin` 리다이렉트를 옮긴다.
+- [ ] `next.config.ts`에 `NEXT_PUBLIC_API_URL`로 보내는 `/api/:path*` rewrites를 가져온다.
 - [ ] `.env.example`을 가져온다. `.env.local`의 실제 값은 팀에게 받는다.
 - [ ] 첫 기능에서 쓰는 API를 `useAppQuery`로 호출해 동작을 확인한다.
 - [ ] `CLAUDE.md`에 데이터 패칭 섹션을 추가하고 `docs/data-fetching-guide.md`를 가져온다.
@@ -114,6 +116,7 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 - [ ] Sentry 프로젝트를 FI-FE와 공유할지, PC용으로 새로 만들지 결정한다.
 - [ ] `sentry.*.config.ts`, `src/instrumentation*.ts`, `next.config.ts`의 `withSentryConfig`를 가져오고 secret `SENTRY_AUTH_TOKEN`을 등록한다.
 - [ ] Vercel Analytics, Speed Insights, GA, Clarity를 설정한다.
+- [ ] Sentry 이슈를 GitHub 이슈로 옮기는 `sentry-issue-sync` 워크플로를 가져온다.
 
 ## 기능 이전 시 함께 가져올 항목
 
