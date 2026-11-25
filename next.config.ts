@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+// Next 기본 봇 목록입니다. htmlLimitedBots를 지정하면 이 목록을 대체하므로, 기본값에 덧붙이기 위해 가져옵니다.
+import { HTML_LIMITED_BOT_UA_RE } from "next/dist/shared/lib/router/utils/html-bots";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: process.env.ANALYZE === "true",
+});
 
 // 현재 로드 중인 스크립트 출처를 열거한 report-only CSP입니다. 당장 차단하지 않고
 // 위반 보고만 받아, 예상치 못한 외부 스크립트(공급망 변조나 주입)를 탐지하는 것이 목적입니다.
@@ -59,10 +66,15 @@ const securityHeaders = [
   },
 ];
 
+// 카카오톡 공유 크롤러(kakaotalk-scrap)가 스트리밍으로 늦게 오는 메타 태그를 읽지 못하는 경우가 있어,
+// 기본 목록에 더해 메타 태그를 head에 바로 담아 응답하도록 합니다.
+const htmlLimitedBots = new RegExp(`${HTML_LIMITED_BOT_UA_RE.source}|kakaotalk-scrap`, "i");
+
 const nextConfig: NextConfig = {
   experimental: {
     reactCompiler: true,
   },
+  htmlLimitedBots,
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
@@ -134,4 +146,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+export default withBundleAnalyzer(withNextIntl(nextConfig));
