@@ -91,7 +91,11 @@ FI-FE(모바일 웹 리포)의 환경과 규칙을 기반으로 FI-FE-PC를 세�
 ## 9단계. 배포 흐름 검증
 
 - [ ] Vercel에 PC 프로젝트를 연결하고 환경 변수를 등록한다.
-- [ ] PC 운영 도메인을 정하고 FI-FE처럼 `src/constants/PRODUCTION_HOST.ts`, 운영 외 호스트의 `X-Robots-Tag: noindex` 헤더(`next.config.ts`), `src/app/robots.ts`를 가져온다.
+- [ ] 도메인 구성: PC(이 리포)는 `www.finditem.kr`, 모바일(FI-FE)은 `m.finditem.kr`을 쓴다. PC에 실제 화면이 생기기 전에 도메인을 옮기면 운영 주소에 빈 페이지가 뜨므로, 전환은 PC 첫 화면들이 준비된 뒤 FI-FE 팀과 함께 진행한다.
+  - [ ] FI-FE의 `PRODUCTION_HOST`를 `m.finditem.kr`로 바꾸고, 메타데이터, 사이트맵, 소셜 로그인 리다이렉트 등 `www.finditem.kr`을 가리키는 곳을 함께 옮긴다.
+  - [ ] 기기에 맞는 도메인으로 보내는 리다이렉트(PC 주소로 들어온 모바일 기기는 `m.finditem.kr`로, 그 반대도 마찬가지)를 정한다.
+  - [ ] Vercel에서 `www.finditem.kr`을 PC 프로젝트로, `m.finditem.kr`을 FI-FE 프로젝트로 연결한다.
+- [ ] FI-FE처럼 `src/constants/PRODUCTION_HOST.ts`(`www.finditem.kr`), 운영 외 호스트의 `X-Robots-Tag: noindex` 헤더(`next.config.ts`), `src/app/robots.ts`를 가져온다.
 - [ ] FI-FE와 동일하게 `develop`(최신 base 기준 검사), `release` Ruleset에 `Vercel` 필수 상태 검사를 추가한다.
 - [ ] `develop` 머지 → release PR 자동 생성 → `release` 머지 → `main` 머지 → 릴리즈 초안 생성까지 전체 흐름을 한 번 실행해 확인한다.
 
