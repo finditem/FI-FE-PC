@@ -9,6 +9,23 @@
 - Next.js 15 / React 19 / TypeScript 5 (`next.config.ts`에서 `reactCompiler: true` — React Compiler 활성화)
 - Tailwind CSS 3. 디자인 토큰은 `src/utils/tokens/`, 커스텀 유틸리티 플러그인은 `src/utils/customStylePlugins/`, 타이포그래피는 `src/utils/customFonts/`에 있고 `tailwind.config.ts`가 이를 조합한다.
 - 아이콘: `src/components/common/Icon`. 자주 쓰는 아이콘은 `icon-manifest.json`에 등록해 `public/icons/sprite.svg` 스프라이트로 묶는다. 스프라이트는 `predev`/`prebuild`에서 `scripts/generate-icon-sprite.js`가 다시 생성하므로, 아이콘을 추가하면 생성된 스프라이트도 함께 커밋한다.
+- 다국어: next-intl(`ko` 기본, `en`). 메시지는 `src/messages/{ko,en}.json`, 라우팅 설정은 `src/i18n/`
+
+## 구조
+
+```
+src/
+  app/
+    [locale]/     # 모든 라우트는 로케일 세그먼트 아래에 둔다
+  components/     # 전역 공통 컴포넌트
+  utils/          # 디자인 토큰, Tailwind 플러그인, 타이포그래피
+  i18n/ messages/ # next-intl 라우팅 설정과 ko/en 메시지
+  middleware.ts   # 로케일 처리
+```
+
+- 라우트 전용 코드는 해당 라우트 폴더 하위 `_components`/`_hooks`/`_types`/`_utils`(private 폴더)에 둔다. 여러 라우트에서 재사용되면 그때 `src/components`, `src/hooks` 등 전역 폴더로 올린다.
+- `hooks/`, `store/`, `utils/`는 도메인별로 묶지 않고, 함수/훅 하나당 폴더 하나(`utils/formatDate/`, `hooks/useLogout/` 등)로 세분화하는 컨벤션이다. 새 유틸/훅을 추가할 때도 이 패턴을 따른다.
+- `_components` 하위 컴포넌트도 동일하게 컴포넌트 하나당 폴더 하나. 그 컴포넌트 내부에서만 쓰는 하위 조각은 `_internal` 폴더에 둔다.
 
 ## 커밋 컨벤션 (commitlint 강제)
 
@@ -43,6 +60,7 @@ Git Flow 변형. 상시 브랜치 3개와 작업별 임시 브랜치로 나눈�
   - JSDoc 스타일(`@param {string} name`처럼 중괄호로 타입을 명시)을 쓰지 않는다. 태그 표기에 주의한다 — `@remark`(X) → `@remarks`(O), `@return`(X) → `@returns`(O).
   - 매개변수가 1~2개면 함수 매개변수에 직접 정의하고 `@param`으로 설명한다. 매개변수가 많거나 객체 구조면 `interface`로 분리한다 — 인터페이스 필드 주석이 IDE 인텔리센스와 연동되어 정의부로 이동하지 않고도 필드 역할을 바로 확인할 수 있기 때문이다. default 값이 있으면 함께 적는다.
 - TODO 주석: 나중에 처리할 작업을 남길 때는 `TODO(담당자): 할 일` 형태로 담당자 이름을 괄호 안에 명시한다. 담당자를 적어 누구에게 물어보면 되는지 추적할 수 있게 하기 위함이다. 예: `// TODO(수현): 후기 등록 API 연동 시 성공 응답 후 완료 팝업을 열도록 교체`.
+- 다국어(i18n): 화면에 보이는 정적 텍스트를 하드코딩하지 않는다. 클라이언트는 `useTranslations`, 서버는 `getTranslations`로 `t()`를 쓰고, 키는 `src/messages/ko.json`과 `en.json`에 동시에 추가한다. 링크와 라우터는 로케일 접두사를 붙여 주는 `@/i18n/navigation`의 것을 쓴다. 로컬에서는 `npm run lint:i18n-literal`, `npm run check:i18n-keys`로 확인한다. 라우트 작업일 때의 체크리스트는 `plan-route` 스킬에 있다.
 
 ## 표준 작업 흐름
 
@@ -66,3 +84,7 @@ PR은 작업 단위로 쪼개 올리고, 작업 성격이 다르면 PR을 나눈
 - 리뷰 스레드의 `Resolve conversation`을 누르거나 API로 해결 처리하지 않는다. 해결 여부는 다른 팀원이 확인한 뒤 처리한다.
 - 여러 리뷰가 있더라도 각 스레드에 같은 설명을 반복하지 않고, 통합 코멘트와 `+1` 반응으로만 반영 상태를 알린다.
 - GitHub 리뷰 반응의 👍은 위 텍스트 작성 원칙의 이모티콘 금지 대상에서 제외한다. 커밋 메시지, PR 본문, 코드 주석 등 텍스트에는 계속 이모티콘을 사용하지 않는다.
+
+## 라우트 작업 계획
+
+특정 라우트(`page.tsx`가 있는 디렉토리) 하나에 국한된 작업을 시작하기 전에 `plan-route` 스킬을 실행한다. 해당 라우트 폴더의 `_docs/plan.md`에 작업 항목을 todo 체크리스트로 기록하고 진행에 따라 갱신해, 세션이 끊겨도 다음 세션이나 다른 팀원이 이어받을 수 있게 한다. 여러 라우트에 걸친 작업이나 전역 공통 코드(`src/components`, `src/hooks` 등) 작업에는 적용하지 않는다.

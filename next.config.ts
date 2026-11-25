@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 // 현재 로드 중인 스크립트 출처를 열거한 report-only CSP입니다. 당장 차단하지 않고
 // 위반 보고만 받아, 예상치 못한 외부 스크립트(공급망 변조나 주입)를 탐지하는 것이 목적입니다.
@@ -131,4 +134,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
