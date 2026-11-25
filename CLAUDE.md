@@ -42,6 +42,12 @@ Git Flow 변형. 상시 브랜치 3개와 작업별 임시 브랜치로 나눈�
 - `hotfix/*`만 예외로 `main`에서 분기해 운영 중 긴급 수정에 쓰고 `main`으로 머지한다.
 - 일반 작업 PR의 base는 항상 `develop`이다.
 
+## 검증 커맨드
+
+- 기본: `npm run test` + `npm run build` (타입체크 포함). 대부분의 회귀를 이 둘로 잡는다.
+- `npm run check:fast`(test/e2e/storybook 병렬) 또는 `npm run check:all`(순차)은 변경이 e2e로 커버되는 플로우나 컴포넌트 스토리를 직접 건드릴 때, 또는 사용자가 요청할 때만 실행한다. 매 응답마다 기본으로 돌리지 않는다.
+- mock/fixture 데이터 규칙은 `AGENTS.md`에 있다.
+
 ## 텍스트 작성 원칙
 
 커밋 메시지, PR 본문, 코드 주석 등 Claude가 작성하는 모든 텍스트 산출물은 온전한 문장으로만 작성하고 이모티콘을 사용하지 않는다.

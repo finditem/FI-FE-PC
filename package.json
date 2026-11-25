@@ -9,7 +9,19 @@
     "prebuild": "npm run generate:icon-sprite",
     "build": "next build",
     "start": "next start",
+    "test": "jest",
+    "prestorybook": "npm run generate:icon-sprite",
+    "storybook": "storybook dev -p 6006",
+    "prebuild-storybook": "npm run generate:icon-sprite",
+    "build-storybook": "storybook build",
     "prepare": "husky",
+    "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN",
+    "test:ci": "jest --ci --runInBand",
+    "check:all": "run-s test build test:e2e build-storybook",
+    "check:fast": "run-p test test:e2e build-storybook",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:ci": "npm run build && playwright test",
     "lint:i18n-literal": "eslint \"src/**/*.{ts,tsx}\"",
     "check:i18n-keys": "node scripts/check-i18n-keys.js"
   },
@@ -27,26 +39,55 @@
     }
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.6.0",
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
+    "@playwright/test": "^1.65.1",
+    "@storybook/addon-a11y": "^10.6.7",
+    "@storybook/addon-docs": "^10.6.7",
+    "@storybook/nextjs": "^10.6.7",
     "@svgr/webpack": "^8.1.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.11",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@typescript-eslint/parser": "^8.72.2",
     "autoprefixer": "^10.6.1",
+    "babel-jest": "^29.7.0",
+    "chromatic": "^13.3.4",
     "eslint": "^10.15.0",
     "husky": "^9.1.7",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "jest-junit": "^17.0.0",
+    "jest-transformer-svg": "^2.1.0",
     "lint-staged": "^16.4.0",
+    "msw": "^2.12.7",
+    "npm-run-all": "^4.1.5",
+    "playwright": "^1.64.1",
     "postcss": "^8.5.31",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "storybook": "^10.6.3",
     "tailwindcss": "^3.4.13",
+    "ts-jest": "^29.4.15",
     "typescript": "^5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,md,css,scss}": [
       "prettier --write"
+    ]
+  },
+  "jest-junit": {
+    "outputDirectory": "reports",
+    "outputName": "junit.xml"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
     ]
   }
 }
