@@ -1,0 +1,78 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  # 컨테이너 이미지의 브라우저 버전은 설치된 @playwright/test 버전과 같아야 한다.
+  # 이미지 태그를 고정해 두면 Dependabot이 패키지만 올린 PR에서 버전이 어긋나 테스트가 실패하므로 락파일에서 버전을 읽는다.
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      playwright: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Read Playwright version from lockfile
+        id: read
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: version
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.version.outputs.playwright }}-noble
+    env:
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build
+        env:
+          NEXT_PUBLIC_IS_E2E: "true"
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Publish Test Results (PR comment - playwright)
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: test-results/junit.xml
+          comment_mode: always
+          comment_title: "Playwright Test Results"
+          check_name: "Playwright Test Results"
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit
+          path: test-results/junit.xml
+          retention-days: 30
