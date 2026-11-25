@@ -44,6 +44,8 @@ Git Flow 변형. 상시 브랜치 3개와 작업별 임시 브랜치로 나눈�
 
 ## 검증 커맨드
 
+CI(`jest.yml`: PR→develop, `playwright.yml`: PR→main/develop)가 PR 시점에 자동으로 jest/e2e를 돌린다. `jest.yml`은 i18n 키 검사(`check:i18n-keys`)도 함께 돌려 ko/en 키가 어긋나면 PR을 막는다. Chromatic(`chromatic.yml`)은 develop 대상 PR에 `🎨 design` 라벨이 붙었을 때만 돈다. 로컬 검증은 이를 보완하는 용도로 가볍게 유지한다.
+
 - 기본: `npm run test` + `npm run build` (타입체크 포함). 대부분의 회귀를 이 둘로 잡는다.
 - `npm run check:fast`(test/e2e/storybook 병렬) 또는 `npm run check:all`(순차)은 변경이 e2e로 커버되는 플로우나 컴포넌트 스토리를 직접 건드릴 때, 또는 사용자가 요청할 때만 실행한다. 매 응답마다 기본으로 돌리지 않는다.
 - mock/fixture 데이터 규칙은 `AGENTS.md`에 있다.
